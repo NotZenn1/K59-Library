@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>StarGrid — Portofolio Futuristik</title>
+  <style>
+    :root{
+      --bg:#05060a; --glass: rgba(255,255,255,0.06);
+      --accent:#7df9ff; --accent-2:#9b7dff;
+      --neon: 0 0 18px rgba(125,249,255,0.18), 0 0 40px rgba(155,125,255,0.06);
+      --glass-border: rgba(255,255,255,0.06); --muted: #9aa5b1; --danger: #ff5c6c;
+      --side-width: 300px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box; transition: background 0.3s, border-color 0.3s, color 0.3s;} 
+    html,body{height:100%; overflow-x: hidden;}
+    body{
+      margin:0; background: var(--bg); color:#dce7ee; 
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      perspective: 1200px; /* Base untuk efek 3D */
+    }
+
+    /* Boot screen dengan Background URL */
+    .screen{
+        position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:50;
+        background: linear-gradient(rgba(0, 0, 0, 0.222), rgba(0, 0, 0, 0.189)), url('d:\wallpaperflare.com_wallpaper.jpg') center/cover no-repeat;
+        transition: all 0.8s cubic-bezier(0.7, 0, 0.3, 1);
+    }
+    .screen::before {
+        content: ""; position: absolute; inset: 0; background: rgba(0,0,0,0.7); z-index: -1;
+    }
+
+    /* Animasi 3D Exit untuk Boot Screen */
+    .screen.hyper-jump {
+        transform: translateZ(500px) scale(2);
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .boot-center{width:680px; max-width:90%; text-align:center; position:relative; padding:42px; border-radius:14px;
+      background:rgba(10, 20, 38, 0.8); backdrop-filter: blur(10px); box-shadow: var(--neon); border:1px solid rgba(255,255,255,0.1);}
+    
+    .logo{font-weight:800; font-size:31px; letter-spacing:6px; color:var(--accent-2); text-shadow:0 0 12px rgba(155,125,255,0.16)}
+    .progress-bar{height:10px;background:rgba(255,255,255,0.03); border-radius:6px; margin:20px 0; overflow:hidden}
+    .progress-fill{height:100%; width:0%; background:linear-gradient(90deg,var(--accent),var(--accent-2)); box-shadow:var(--neon); transition:width 300ms linear}
+    .press-start{margin-top:19px; font-weight:700; color:#fff; letter-spacing:1.5px; animation:blink 1s infinite; cursor:pointer; user-select:none}
+    .hidden{display:none !important}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0.25}}
+
+    /* Main App dengan Entry Animation */
+    #app {
+        min-height: 100vh;
+        background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('https://r4.wallpaperflare.com/wallpaper/291/215/691/honkai-star-rail-firefly-honkai-star-rail-hd-wallpaper-fb866c3da3b10fe9b5645ba99decfc60.jpg') center/cover fixed no-repeat;
+        animation: appEntry 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    @keyframes appEntry {
+        from { opacity: 0; transform: translateZ(-200px) scale(0.9); }
+        to { opacity: 1; transform: translateZ(0) scale(1); }
+    }
+
+    /* Topbar Layout & Search Right */
+    .topbar{display:flex; align-items:center; justify-content:space-between; padding:18px 28px; backdrop-filter: blur(15px); border-bottom:1px solid var(--glass-border); background: rgba(5,10,20,0.85);}
+    .topbar .controls { display: flex; align-items: center; gap: 15px; }
+    #searchInput { width: 250px; margin-top: 0; background: rgba(255,255,255,0.05); border: 1px solid var(--accent); color: white; }
+
+    /* Layout Expansion Transition */
+    .layout{
+        display:grid; 
+        grid-template-columns: var(--side-width) 1fr auto; 
+        gap: 20px; padding:28px; align-items:start;
+        transition: grid-template-columns 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Profile Transition */
+    .profile-panel {
+        overflow: hidden;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 1;
+        transform: translateX(0);
+    }
+    .profile-panel.collapsed {
+        width: 0; padding: 0; margin: 0; opacity: 0; transform: translateX(-50px); border: none;
+    }
+
+    .panel{padding:18px; border-radius:12px; min-height:220px; position:relative}
+    .glass{background: rgba(10, 20, 38, 0.85); border:1px solid var(--glass-border); box-shadow: 0 8px 60px rgba(0,0,0,0.6); backdrop-filter: blur(10px);}
+    
+    /* Right Panel Toggle */
+    .detail-panel {
+        width: 320px;
+        transition: all 0.4s ease;
+    }
+    .detail-panel.hidden-panel {
+        width: 0; padding: 0; margin: 0; opacity: 0; overflow: hidden; border: none;
+    }
+
+    .profile-panel .avatar{width:88px;height:88px;border-radius:12px; object-fit:cover; border:1px solid var(--accent); box-shadow:var(--neon)}
+    .neon-btn{background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:#021017; padding:8px 12px; border-radius:8px; border:none; cursor:pointer; box-shadow:var(--neon); font-weight:700}
+    .ghost-btn{background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--muted); padding:8px 10px; border-radius:8px; cursor:pointer}
+
+    .cards-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:14px; margin-top:14px}
+    .char-card{background: rgba(255,255,255,0.03); border-radius:10px; padding:10px; cursor:pointer; border:1px solid rgba(255,255,255,0.03); transition: 0.3s; display:flex; gap:10px; align-items:center}
+    .char-card:hover{transform:translateY(-6px); border-color: var(--accent); background: rgba(255,255,255,0.08);}
+    .char-card img{width:64px; height:64px; object-fit:cover; border-radius:8px;}
+
+    input, textarea { width:100%; padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.2); color:inherit; margin-top:8px; outline:none }
+    .close-x{position:absolute; right:12px; top:12px; background:transparent; border:none; color:var(--muted); font-size:18px; cursor:pointer}
+    .footer{padding:12px 28px; color:var(--muted); font-size:13px; text-align: center;}
+  </style>
+</head>
+<body>
+  <!-- Loading Screen --> 
+  <div id="boot" class="screen">
+    <div class="boot-center" id="bootCenter">
+      <div class="logo">INTERASTRAL LIBRARY V2</div>
+      <div class="subtitle">Gatau mau masukin apa :v</div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div id="pressStart" class="press-start hidden">Join</div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="app" class="hidden">
+    <header class="topbar">
+      <div style="display: flex; align-items: center; gap: 20px;">
+        <button id="toggleProfile" class="ghost-btn" title="Toggle Profile" style="font-size: 1.2rem;">☰</button>
+        <div class="title">
+            <div class="brand">INTERASTRAL LIBRARY V2</div> 
+            <div class="tenor-gif-embed" data-postid="11497878701442434906" data-share-method="host" data-aspect-ratio="1.81752" data-width="90%"><a href="https://tenor.com/view/firefly-honkai-star-rail-star-rail-hotaru-gif-11497878701442434906">Firefly Honkai Star Rail GIF</a>from <a href="https://tenor.com/search/firefly-gifs">Firefly GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+        </div>
+      </div>
+      <div class="controls">
+        <input id="searchInput" type="search" placeholder="Cari karakter..." />
+        <button id="toggleTheme" class="neon-btn">Neon Mode</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <!-- Profile Panel -->
+      <aside id="profilePanel" class="panel profile-panel glass">
+        <div class="profile-header" style="display:flex; gap:12px; align-items:center;">
+          <img id="profilePhoto" class="avatar" src="https://media1.tenor.com/m/83fSzLO0WOkAAAAd/honkai-honkai-star-rail.gif" alt="Profile">
+          <div class="profile-info">
+            <h2 id="profileName">Ahmad Ridha Lailan</h2>
+            <p id="profileBio">Saya manusia biasa, makan nasi</p>
+          </div>
+        </div>
+
+        <div class="panel-block" style="margin-top:20px">
+          <h3 style="font-size: 14px; color: var(--accent);">Quick Actions</h3>
+          <div class="actions" style="display:flex;gap:10px;margin-top:10px">
+            <button id="openAdd" class="neon-btn">+ List</button>
+            <button id="exportJson" class="ghost-btn">Export JSON</button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Center Panel -->
+      <section class="panel center-panel glass">
+        <div class="panel-header" style="display: flex; justify-content: space-between; align-items:center;">
+          <h2>Karakter Database</h2>
+          <div class="count" id="charCount" style="background:var(--accent); color:black; padding:2px 10px; border-radius:20px; font-weight:800;">0</div>
+        </div>
+        <div id="charactersGrid" class="cards-grid"></div>
+      </section>
+
+      <!-- Right Panel -->
+      <aside id="rightPanel" class="panel detail-panel glass hidden-panel">
+        <button id="closePanel" class="close-x">✕</button>
+        <div id="addPanel">
+          <h3>Tambah Karakter</h3>
+          <form id="addForm">
+            <label style="font-size:16px; color:var(--muted);">Nama Buku</label>
+            <input id="charName" required placeholder="Masukkan nama..." />
+            <label style="font-size:16px; color:var(--muted);">Nama Pengarang</label>
+            <input id="charName" required placeholder="Masukkan nama..." />
+            <label style="font-size:16px; color:var(--muted);">Tahun Terbit</label>
+            <input id="charName" required placeholder="Masukkan nama..." />
+            <label style="font-size:16px; color:var(--muted); margin-top:10px; display:block;">Deskripsi</label>
+            <textarea id="charDesc" rows="3" placeholder="Role atau lore..."></textarea>
+            <label style="font-size:16px; color:var(--muted); margin-top:10px; display:block;">URL Foto (Opsional)</label>
+            <input id="charPhoto" placeholder="https://..." />
+            <button type="submit" class="neon-btn" style="width:100%; margin-top:15px">Simpan Data</button>
+          </form>
+        </div>
+
+        <div id="detailView" class="hidden">
+          <div style="text-align:center">
+            <img id="detailPhoto" style="width:100%; border-radius:8px; border:1px solid var(--accent); margin-bottom:15px" />
+            <h3 id="detailName"></h3>
+            <p id="detailDesc" style="margin: 10px 0; color:var(--muted); font-size:18px;"></p>
+            <button id="deleteChar" class="neon-btn" style="background:var(--danger); color:white; width:100%; box-shadow:none;">Hapus Karakter</button>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="footer">© 2026 — StarGrid Interface</footer>
+  </div>
+
+  <script>
+    const state = {
+      characters: [
+        { id: '1', name: "3726 MDPL", photo: "https://image.gramedia.net/rs:fit:0:0/plain/https://cdn.gramedia.com/uploads/products/9397p4603v.jpg", desc: "Nurwina Sari • 2024 • Novel" },
+        { id: '2', name: "Laut Bercerita", photo: "https://image.gramedia.net/rs:fit:0:0/plain/https://cdn.gramedia.com/uploads/items/9786024246945_Laut-Bercerita.png", desc: "Leila S. Chuodri • 2017 • Sejarah" },
+        { id: '3', name: "Taipan — Ketika Bos Kecil Mengacaukan Dunia", photo: "https://image.gramedia.net/rs:fit:0:0/plain/https://cdn.gramedia.com/uploads/product-metas/6e-laa4itt.png", desc: "Willian Win Yang • 2026 • Sejarah" },
+        { id: '4', name: "MetroPop: The Case We Met", photo: "https://image.gramedia.net/rs:fit:0:0/plain/https://cdn.gramedia.com/uploads/product-metas/shs-7z4ot7.jpg", desc: "Flazia • 2011 • Fiksi" },
+        { id: '5', name: "Laut Pasang 1994 (New Version)", photo: "https://image.gramedia.net/rs:fit:0:0/plain/https://cdn.gramedia.com/uploads/product-metas/xon-1ca7lu.jpg", desc: "Lilpudu • 2026 • Sejarah" },
+        { id: '6', name: "Lotus Taxi", photo: "https://image.gramedia.net/rs:fit:0:0/plain/https://cdn.gramedia.com/uploads/product-metas/t2491xxttu.jpg", desc: "Gen Kato • 2026 • Fiksi" },
+        { id: '7', name: "The Girl I Like Forgot Her Glassess 01", photo: "https://image.gramedia.net/rs:fit:0:0/plain/https://cdn.gramedia.com/uploads/picture_meta/2023/6/20/ggpuuipwpubwwimppmyyht.jpg", desc: "Koume Fujichika • 2023 • Komik" },
+      ],
+      isGoldMode: false
+    };
+
+    function $(s){return document.querySelector(s)}
+
+    // 1. Loading Logic dengan Transisi 3D
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.random() * 20;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
+        $('#pressStart').classList.remove('hidden');
+      }
+      $('#progressFill').style.width = progress + '%';
+    }, 200);
+
+    $('#pressStart').onclick = () => {
+      // Menambahkan class animasi exit
+      $('#boot').classList.add('hyper-jump');
+      
+      // Delay kecil agar animasi exit terlihat sebelum masuk ke app
+      setTimeout(() => {
+        $('#boot').classList.add('hidden');
+        $('#app').classList.remove('hidden');
+        renderList();
+      }, 600);
+    };
+
+    // 2. Perbaikan Fitur Mode
+    $('#toggleTheme').onclick = () => {
+        state.isGoldMode = !state.isGoldMode;
+        if(state.isGoldMode) {
+            document.documentElement.style.setProperty('--accent', '#ffcc00');
+            document.documentElement.style.setProperty('--accent-2', '#ffffff');
+            $('#toggleTheme').textContent = 'Gold Mode';
+        } else {
+            document.documentElement.style.setProperty('--accent', '#7df9ff');
+            document.documentElement.style.setProperty('--accent-2', '#9b7dff');
+            $('#toggleTheme').textContent = 'Neon Mode';
+        }
+    };
+
+    // 3. Toggle Profile
+    $('#toggleProfile').onclick = () => {
+        const profile = $('#profilePanel');
+        profile.classList.toggle('collapsed');
+        document.documentElement.style.setProperty('--side-width', profile.classList.contains('collapsed') ? '0px' : '300px');
+    };
+
+    // 4. Quick Action Tambah Karakter
+    $('#openAdd').onclick = () => {
+        $('#rightPanel').classList.remove('hidden-panel');
+        $('#addPanel').classList.remove('hidden');
+        $('#detailView').classList.add('hidden');
+    };
+
+    $('#closePanel').onclick = () => {
+        $('#rightPanel').classList.add('hidden-panel');
+    };
+
+    function renderList(filter = ''){
+      const grid = $('#charactersGrid');
+      grid.innerHTML = '';
+      const list = state.characters.filter(c => c.name.toLowerCase().includes(filter.toLowerCase()));
+      $('#charCount').textContent = list.length;
+      list.forEach(c => {
+        const card = document.createElement('div');
+        card.className = 'char-card';
+        card.innerHTML = `<img src="${c.photo}"><div><h4>${c.name}</h4><p style="font-size:11px; color:var(--muted)">${c.desc}</p></div>`;
+        card.onclick = () => showDetail(c);
+        grid.appendChild(card);
+      });
+    }
+
+    function showDetail(c) {
+        $('#rightPanel').classList.remove('hidden-panel');
+        $('#addPanel').classList.add('hidden');
+        $('#detailView').classList.remove('hidden');
+        $('#detailPhoto').src = c.photo;
+        $('#detailName').textContent = c.name;
+        $('#detailDesc').textContent = c.desc;
+        $('#deleteChar').onclick = () => {
+            if(confirm(`Hapus ${c.name}?`)) {
+                state.characters = state.characters.filter(x => x.id !== c.id);
+                renderList();
+                $('#rightPanel').classList.add('hidden-panel');
+            }
+        };
+    }
+
+    $('#addForm').onsubmit = (e) => {
+        e.preventDefault();
+        state.characters.unshift({
+            id: Math.random().toString(36).substr(2, 9),
+            name: $('#charName').value,
+            photo: $('#charPhoto').value || `https://placehold.co/256x256/png?text=${encodeURIComponent($('#charName').value)}`,
+            desc: $('#charDesc').value
+        });
+        renderList();
+        $('#addForm').reset();
+        $('#rightPanel').classList.add('hidden-panel');
+    };
+
+    $('#searchInput').oninput = (e) => renderList(e.target.value);
+    
+    $('#exportJson').onclick = () => {
+      const blob = new Blob([JSON.stringify(state.characters, null, 2)], {type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'stargrid_export.json';
+      a.click();
+    };
+  </script>
+</body>
+</html>
